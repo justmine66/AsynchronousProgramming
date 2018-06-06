@@ -189,6 +189,61 @@ namespace AsynchronousProgramming.Standard.Library
 
         #endregion
 
-        
+        #region [ 示例：ThreadPool.RegisterWaitForSingleObject ]
+
+        /// <summary>
+        /// 示例：ThreadPool.RegisterWaitForSingleObject 
+        /// </summary>
+        public static void Example_RegisterWaitForSingleObject()
+        {
+            // 加endWaitHandle的原因：如果推出方法会导致一些东西被释放，原因还在研究
+            var endWaitHandle = new AutoResetEvent(false);
+            var notificWaitHandle = new AutoResetEvent(false);
+            var waitHandle = new AutoResetEvent(false);
+
+            RegisteredWaitHandle registeredWaitHandle = ThreadPool.RegisterWaitForSingleObject(
+                waitHandle,
+                (object state, bool timedOut) =>
+                {
+                    if (timedOut)
+                        Console.WriteLine("RegisterWaitForSingleObject因超时而执行");
+                    else
+                        Console.WriteLine("RegisterWaitForSingleObject收到WaitHandle信号");
+                },
+                null,
+                TimeSpan.FromSeconds(2), true);
+
+            // 取消等待操作（即不再执行WaitOrTimerCallback委托）
+            //registeredWaitHandle.Unregister(notificWaitHandle);
+
+            // 通知
+            ThreadPool.RegisterWaitForSingleObject(
+                notificWaitHandle,
+                (Object state, bool timedOut) =>
+                {
+                    if (timedOut)
+                        Console.WriteLine("第一个RegisterWaitForSingleObject没有调用Unregister()");
+                    else
+                        Console.WriteLine("第一个RegisterWaitForSingleObject调用了Unregister()");
+
+                    endWaitHandle.Set();
+                },
+                null, TimeSpan.FromSeconds(4), true
+             );
+
+            endWaitHandle.WaitOne();
+
+            Console.Read();
+        }
+
+        #endregion
+
+        #region [ 示例：DoubleCheckLock ]
+
+        public static void DoubleCheckLock_Test()
+        {
+            ValidateSingleton.ValidateSingleton_Test(); 
+        }
+        #endregion
     }
 }
