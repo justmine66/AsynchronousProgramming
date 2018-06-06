@@ -1,5 +1,6 @@
 ﻿using AsynchronousProgramming.Standard.Library;
 using System;
+using System.Threading.Tasks;
 
 namespace AsynchronousProgramming.DotnetCore.ConsonleApp
 {
@@ -14,7 +15,17 @@ namespace AsynchronousProgramming.DotnetCore.ConsonleApp
             // 示例：托管TSL（数据槽|线程相关静态字段）中数据的唯一性
             //SampledMain.SimpleTLS();
             //示例：.NET下未捕获异常的处理
-            SampledMain.SampleCaptureUnhandledException();app
+            //SampledMain.SampleCaptureUnhandledException();
+            MainAsync().GetAwaiter().GetResult();
+
+            Console.Read();
+        }
+        static async Task MainAsync()
+        {
+            //示例：TaskCompletionSource
+            var tcs = new TaskCompletionSourceSamples();
+            tcs.ResponseEchos();
+            await tcs.SendEchos();
         }
     }
 }
