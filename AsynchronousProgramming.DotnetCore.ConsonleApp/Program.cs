@@ -14,9 +14,11 @@ namespace AsynchronousProgramming.DotnetCore.ConsonleApp
             //SampledMain.SimpleAbort();
             // 示例：托管TSL（数据槽|线程相关静态字段）中数据的唯一性
             //SampledMain.SimpleTLS();
-            //示例：.NET下未捕获异常的处理
+            // 示例：.NET下未捕获异常的处理
             //SampledMain.SampleCaptureUnhandledException();
-            MainAsync().GetAwaiter().GetResult();
+            //MainAsync().GetAwaiter().GetResult();
+            //示例：线程池饥饿
+            ThreadPoolStarvationTest.Test();
 
             Console.Read();
         }
