@@ -12,38 +12,160 @@ namespace AsynchronousProgramming.Standard.Library
 
             ThreadPool.SetMinThreads(8, 8);
 
-            Task.Factory.StartNew(
-                ProducerAsync,
-                TaskCreationOptions.PreferFairness);
+            //V1.Main();
+            //V2.Main();
+            //V3.Main();
+            V4.Main();
 
             Console.ReadLine();
         }
 
-        static void ProducerAsync()
+        private class V1
         {
-            while (true)
+            public static void Main()
             {
-                Process();
+                Task.Factory.StartNew(
+                    ProducerAsync,
+                    TaskCreationOptions.None);
+            }
 
-                Thread.Sleep(200);
+            static void ProducerAsync()
+            {
+                while (true)
+                {
+                    Process();
+
+                    Thread.Sleep(200);
+                }
+            }
+
+            static async Task Process()
+            {
+                await Task.Yield();
+
+                var tcs = new TaskCompletionSource<bool>();
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    tcs.SetResult(true);
+                });
+
+                tcs.Task.Wait();
+
+                Console.WriteLine("Ended - " + DateTime.Now.ToLongTimeString());
             }
         }
 
-        static async Task Process()
+        private class V2
         {
-            await Task.Yield();
-
-            var tcs = new TaskCompletionSource<bool>();
-
-            Task.Run(() =>
+            public static void Main()
             {
-                Thread.Sleep(1000);
-                tcs.SetResult(true);
-            });
+                Task.Factory.StartNew(
+                    ProducerAsync,
+                    TaskCreationOptions.None);
+            }
 
-            tcs.Task.Wait();
+            static void ProducerAsync()
+            {
+                while (true)
+                {
+                    Task.Factory.StartNew(
+                    Process,
+                    TaskCreationOptions.None);
 
-            Console.WriteLine("Ended - " + DateTime.Now.ToLongTimeString());
+                    Thread.Sleep(200);
+                }
+            }
+
+            static async Task Process()
+            {
+                var tcs = new TaskCompletionSource<bool>();
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    tcs.SetResult(true);
+                });
+
+                tcs.Task.Wait();
+
+                Console.WriteLine("Ended - " + DateTime.Now.ToLongTimeString());
+            }
+        }
+
+        private class V3
+        {
+            public static void Main()
+            {
+                Task.Factory.StartNew(
+                    ProducerAsync,
+                    TaskCreationOptions.LongRunning);
+            }
+
+            static void ProducerAsync()
+            {
+                while (true)
+                {
+                    Process();
+
+                    Thread.Sleep(200);
+                }
+            }
+
+            static async Task Process()
+            {
+                await Task.Yield();
+
+                var tcs = new TaskCompletionSource<bool>();
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    tcs.SetResult(true);
+                });
+
+                tcs.Task.Wait();
+
+                Console.WriteLine("Ended - " + DateTime.Now.ToLongTimeString());
+            }
+        }
+
+        private class V4
+        {
+            public static void Main()
+            {
+                Task.Factory.StartNew(
+                    ProducerAsync,
+                    TaskCreationOptions.None);
+            }
+
+            static void ProducerAsync()
+            {
+                while (true)
+                {
+                    Task.Factory.StartNew(
+                    Process,
+                    TaskCreationOptions.PreferFairness);
+
+                    Thread.Sleep(200);
+                }
+            }
+
+            static async Task Process()
+            {
+                var tcs = new TaskCompletionSource<bool>();
+
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    tcs.SetResult(true);
+                });
+
+                tcs.Task.Wait();
+
+                Console.WriteLine("Ended - " + DateTime.Now.ToLongTimeString());
+            }
         }
     }
 }
